@@ -1,0 +1,108 @@
+{% extends 'index.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block dynamic_content %}
+<section>
+    <h2>Resources & Feedback</h2>
+    <form method="POST">
+        <textarea name="feedback" rows="4" cols="50" placeholder="Provide feedback here..."></textarea><br>
+        <button type="submit" class="button">Submit Feedback</button>
+        <button type="reset" class="button">Clear Feedback</button>
+    </form>
+</section>
+
+<section>
+    <h2>Search for Jobs</h2>
+    <form method="GET">
+        <input type="text" name="keywords" placeholder="Search jobs by keywords..." />
+        <select name="location">
+            <option value="">Select location</option>
+            <option value="remote">Remote</option>
+            <option value="nearby">Nearby</option>
+        </select>
+        <button type="submit" class="button">Search</button>
+    </form>
+    <ul>
+        {% for job in jobs %}
+        <li>
+            <strong>{{ job.title }}</strong> at {{ job.company }} ({{ job.distance }} miles away)
+            <form method="POST" style="display: inline;">
+                <button name="bookmark_job" value="{{ job.id }}">Bookmark</button>
+                <button name="apply_job" value="{{ job.id }}">Apply</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Saved Applications</h2>
+    <ul>
+        {% for job in applications %}
+        <li><strong>{{ job.title }}</strong> at {{ job.company }}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Bookmarked Jobs</h2>
+    <ul>
+        {% for job in bookmarked_jobs %}
+        <li><strong>{{ job.title }}</strong> at {{ job.company }}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Letters of Recommendation</h2>
+    <form method="POST">
+        <textarea name="letter_request" rows="4" cols="50" placeholder="Request a letter of recommendation..."></textarea><br>
+        <button type="submit" class="button">Request Letter</button>
+    </form>
+    <ul>
+        {% for letter in letters_of_rec %}
+        <li>{{ letter }}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Job Alerts</h2>
+    <ul>
+        {% for alert in job_alerts %}
+        <li>{{ alert }}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section>
+    <h2>Calendar</h2>
+    <p>Upcoming deadlines and events will appear here.</p>
+    <!-- Placeholder for an embedded calendar -->
+</section>
+
+<section>
+    <h2>Newsletter</h2>
+    <form method="POST">
+        <input type="email" name="email" placeholder="Enter your email to subscribe..." />
+        <button type="submit" class="button">Subscribe</button>
+    </form>
+</section>
+
+<section>
+    <h2>Community</h2>
+    <p>Connect with peers and mentors. Join discussions or start a new thread.</p>
+    <!-- Placeholder for future community section -->
+</section>
+
+<h2>Applications</h2>
+<ul>
+    {% for job in applications %}
+    <li>
+        <strong>{{ job.title }}</strong> at {{ job.company }} - <em>Status: {{ job.status }}</em>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

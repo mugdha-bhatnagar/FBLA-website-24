@@ -1,0 +1,51 @@
+{% extends 'index.html'%}
+
+{% block title %}Student Dashboard
+{% endblock %}
+
+{% block dynamic_content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+</head>
+<!---break-->
+<body>
+    <h1>Admin Panel</h1>
+    <h2>Pending Job Approvals</h2>
+
+    {% if pending_jobs %}
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Distance</th>
+                <th>Actions</th>
+            </tr>
+            {% for job in pending_jobs %}
+            <tr>
+                <td>{{ job[0] }}</td>
+                <td>{{ job[1] }}</td>
+                <td>{{ job[2] }}</td>
+                <td>{{ job.distance }} miles</td>
+                <td>
+                    <form method="POST">
+                        <input type="hidden" name="job_id" value="{{ job.id }}">
+                        <button type="submit" name="action" value="approve" class="approve">Approve</button>
+                        <button type="submit" name="action" value="decline" class="decline">Decline</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No pending job approvals.</p>
+    {% endif %}
+
+    <a href="/">Back to Home</a>
+</body>
+</html>
+{% endblock %}

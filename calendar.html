@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Calendar</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    overflow: hidden;
+}
+
+.calendar {
+    width: 100vw;  /* 100% of the viewport width */
+    height: 100vh; /* 100% of the viewport height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #fff;
+    border: none;
+    box-sizing: border-box;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+#monthYear {
+    font-size: 2em;
+    margin: 0;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.day-name {
+    font-weight: bold;
+    text-align: center;
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    padding: 20px 10px;
+    overflow-y: auto;
+    flex-grow: 1;  /* Ensures it takes remaining space */
+}
+
+.day {
+    padding: 15px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1.5em;
+    border-radius: 5px;
+}
+
+.day:hover {
+    background-color: #ddd;
+}
+
+.event-date {
+    background-color: #d9bee5;
+    color: white;
+}
+
+/* Responsive adjustments for smaller devices */
+@media screen and (max-width: 768px) {
+    #monthYear {
+        font-size: 1.5em;
+    }
+
+    .day-name, .day {
+        font-size: 1.2em;
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #monthYear {
+        font-size: 1.2em;
+    }
+
+    .day-name, .day {
+        font-size: 1em;
+        padding: 8px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="calendar">
+        <div class="calendar-header">
+            <button id="prevMonth">&lt;</button>
+            <h2 id="monthYear"></h2>
+            <button id="nextMonth">&gt;</button>
+        </div>
+        <div class="calendar-days">
+            <div class="day-name">Sun</div>
+            <div class="day-name">Mon</div>
+            <div class="day-name">Tue</div>
+            <div class="day-name">Wed</div>
+            <div class="day-name">Thu</div>
+            <div class="day-name">Fri</div>
+            <div class="day-name">Sat</div>
+        </div>
+        <div id="calendarBody" class="calendar-body"></div>
+    </div>
+
+    <script>
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+
+        const monthYear = document.getElementById("monthYear");
+        const calendarBody = document.getElementById("calendarBody");
+
+        function renderCalendar(month, year) {
+    calendarBody.innerHTML = '';
+
+    monthYear.innerText = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month).getDay();
+    let daysInCurrentMonth = daysInMonth[month];
+
+    if (month === 1 && (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0))) {
+        daysInCurrentMonth = 29;
+    }
+
+    for (let i = 0; i < firstDay; i++) {
+        const blankCell = document.createElement("div");
+        calendarBody.appendChild(blankCell);
+    }
+
+    for (let i = 1; i <= daysInCurrentMonth; i++) {
+        const dayCell = document.createElement("div");
+        dayCell.classList.add("day");
+        dayCell.id = `day-${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        dayCell.dataset.day = i;
+        dayCell.innerText = i;
+
+        if (events[`${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`]) {
+            dayCell.innerHTML += `<br><small>${events[`${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`]}</small>`;
+            dayCell.classList.add("event-date");
+        }
+
+        dayCell.addEventListener("click", () => {
+            openEventForm(i, month, year, dayCell);
+        });
+
+        calendarBody.appendChild(dayCell);
+    }
+}
+
+        // Navigation buttons
+        document.getElementById("prevMonth").addEventListener("click", () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+
+        document.getElementById("nextMonth").addEventListener("click", () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar(currentMonth, currentYear);
+        });
+
+        // Initial render
+        renderCalendar(currentMonth, currentYear);
+    </script>
+<!-- Add this form to your HTML -->
+<div id="eventFormContainer" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; padding: 20px; border: 1px solid #ddd; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); z-index: 1000;">
+    <h3>Add Event</h3>
+    <form id="eventForm">
+        <label for="eventDate">Date:</label>
+        <input type="text" id="eventDate" name="eventDate" readonly style="margin-bottom: 10px;">
+        <br>
+        <label for="eventDetails">Event Details:</label>
+        <textarea id="eventDetails" name="eventDetails" rows="4" style="width: 100%;"></textarea>
+        <br><br>
+        <button type="button" onclick="saveEvent()">Save</button>
+        <button type="button" onclick="closeEventForm()">Cancel</button>
+    </form>
+</div>
+
+<script>
+    const eventFormContainer = document.getElementById("eventFormContainer");
+    const eventDateInput = document.getElementById("eventDate");
+    const eventDetailsInput = document.getElementById("eventDetails");
+    const events = {}; // Store events as { 'YYYY-MM-DD': 'Event Details' }
+
+    function openEventForm(date, month, year, dayCell) {
+        const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+        eventDateInput.value = formattedDate;
+        eventDetailsInput.value = events[formattedDate] || ''; // Pre-fill if event exists
+        eventFormContainer.style.display = 'block';
+        eventFormContainer.dataset.dayCellId = dayCell.id; // Associate form with day cell
+    }
+
+    function closeEventForm() {
+        eventFormContainer.style.display = 'none';
+    }
+
+    function saveEvent() {
+        const eventDate = eventDateInput.value;
+        const eventDetails = eventDetailsInput.value;
+
+        if (eventDetails.trim() === '') {
+            alert("Event details cannot be empty.");
+            return;
+        }
+
+        events[eventDate] = eventDetails;
+
+        // Update the calendar cell
+        const dayCellId = eventFormContainer.dataset.dayCellId;
+        const dayCell = document.getElementById(dayCellId);
+        dayCell.innerHTML = `<span>${dayCell.dataset.day}</span><br><small>${eventDetails}</small>`;
+        dayCell.classList.add("event-date");
+
+        closeEventForm();
+    }
+</script>
+</body>
+</html>

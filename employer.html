@@ -1,0 +1,36 @@
+{% extends 'index.html'%}
+
+{% block title %}Student Dashboard
+{% endblock %}
+
+{% block dynamic_content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employer Portal</title>
+</head>
+<body>
+    <h1>Submit a Job Posting</h1>
+    <form method="POST">
+        <label>Job Title:</label>
+        <input type="text" name="title" required><br>
+
+        <label>Company:</label>
+        <input type="text" name="company" required><br>
+
+        <label>Distance (miles):</label>
+        <input type="number" name="distance" required><br>
+
+        <label>Tags (comma-separated):</label>
+        <input type="text" name="tags"><br>
+
+        <button type="submit">Submit Job</button>
+    </form>
+
+    <a href="/">Back to Home</a>
+</body>
+</html>
+
+{% endblock %}
