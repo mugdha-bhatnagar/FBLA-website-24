@@ -1,0 +1,91 @@
+from flask import Flask, request, render_template, redirect, url_for
+import secrets
+import sqlite3
+
+
+app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
+app.logger.info(f"key: {app.secret_key}")
+
+# Sample data for demonstration
+
+
+pending_jobs = []  # Store jobs awaiting approval
+applications = []
+bookmarked_jobs = []
+letters_of_rec = []
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
+
+@app.route('/student', methods=['GET', 'POST'])
+def student_view():
+    if request.method == 'POST':
+        if 'feedback' in request.form:
+            feedback = request.form['feedback']
+        elif 'bookmark_job' in request.form:
+            job_id = int(request.form['bookmark_job'])
+            job = next((job for job in jobs if job["id"] == job_id), None)
+            if job:
+                bookmarked_jobs.append(job)
+        elif 'apply_job' in request.form:
+            job_id = int(request.form['apply_job'])
+            job = next((job for job in jobs if job["id"] == job_id), None)
+            if job:
+                applications.append(job)
+        return redirect(url_for('student_view'))
+
+    approved_jobs = [job for job in jobs if job.get("approved", False)]
+    return render_template(
+        'student_view.html',
+        jobs=approved_jobs,
+        applications=applications,
+        bookmarked_jobs=bookmarked_jobs,
+        letters_of_rec=letters_of_rec
+    )
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_view():
+    if request.method == 'POST':
+        job_id = int(request.form['job_id'])
+        action = request.form['action']
+        job = next((job for job in pending_jobs if job["id"] == job_id), None)
+        if job:
+            if action == "approve":
+                job["approved"] = True
+                jobs.append(job)
+            pending_jobs.remove(job)
+    return render_template('admin.html', pending_jobs=pending_jobs)
+
+@app.route("/employer", methods=['GET', 'POST'])
+def employer():
+    if request.method == 'POST':
+        
+        job_id = len(jobs) + len(pending_jobs) + 1
+        new_job = {
+            "id": job_id,
+            "title": request.form['title'],
+            "company": request.form['company'],
+            "distance": int(request.form['distance']),
+            "approved": False
+        }
+        f"""
+        cursor.execute("INSERT INTO jobs (id,title, company, distance,approved) VALUES ({request.form['title']}, {request.form['company']},{request.form['distance']})")
+        conn.commit()
+        """
+        pending_jobs.append(new_job)
+        return redirect(url_for("employer"))
+    return render_template("employer.html")
+
+@app.route("/calendar")
+def calendar():
+    return render_template("calendar.html")
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+if __name__ == '__main__':
+    app.run(debug=True, host="0.0.0.0")
